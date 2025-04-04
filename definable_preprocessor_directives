@@ -1,0 +1,9 @@
+USE_OPENMP
+
+find_package(OpenMP)
+ if(OpenMP_CXX_FOUND)
+     target_link_libraries(hypercsa OpenMP::OpenMP_CXX)
+ endif()
+
+USE_PARALLEL_EXECUTION (not on clang, only gcc)
+
