@@ -25,7 +25,15 @@ typedef struct {
 } HyperGraph;
 
 void print_int_vector(int_vector<64> *vec) {
-    std::cout << "Modified vector: ";
+    std::cout << "int_vector: ";
+    for (size_t i = 0; i < vec->size(); ++i) {
+        std::cout << (*vec)[i] << " ";
+    }
+    std::cout << std::endl;
+}
+
+void print_enc_vector(enc_vector<> *vec) {
+    std::cout << "enc_vector: ";
     for (size_t i = 0; i < vec->size(); ++i) {
         std::cout << (*vec)[i] << " ";
     }
@@ -182,10 +190,11 @@ int calc_d(int_vector<64> *linear, bit_vector *d)
 
 int write_hyper_csa(const char *output_file, bit_vector *d, enc_vector<> *psi)
 {
-    std::ostream out(
-            (basic_streambuf<std::basic_ostream<char, std::char_traits<char>>::char_type, std::basic_ostream<char, std::char_traits<char>>::traits_type> *) output_file);
+    std::ofstream out(output_file);
     d->serialize(out);
     psi->serialize(out);
+    out.flush();
+    out.close();
     return 0;
 }
 

@@ -6,7 +6,7 @@
 #include "read/read.h"
 
 int main(int argc, char** argv) {
-    construct_hypercsa("", "test.hcsa");
-    test_query("test.hcsa");
+    construct_hypercsa("", "/Users/eadler/Documents/projects/hypercsa/test.hcsa");
+    test_query("/Users/eadler/Documents/projects/hypercsa/test.hcsa");
     return 0;
 }
