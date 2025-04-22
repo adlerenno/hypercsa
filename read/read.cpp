@@ -41,18 +41,18 @@ int load(const string& filename, enc_vector<> *psi, bit_vector *d) {
     return 0;
 }
 
-int binary_search_left_jumps(enc_vector<> *psi, uint64_t *from, uint64_t *to)
+
+int binary_search_left_jumps(enc_vector<> *psi, uint64_t *from, const uint64_t *to)
 {
-    uint64_t middle;
-    while (*from < *to) {
-        middle = (*from) + ((*to) - (*from)) / 2;
+    uint64_t low = *from, middle, high = *to;
+    while (low < high) {
+        middle = (low) + ((high) - (low)) / 2;
         if ((*psi)[middle] <= middle) // Backwards jump criteria.
-            *from = middle + 1;
+            low = middle + 1;
         else
-            *to = middle;
+            high = middle;
     }
-    if (*to < *from)
-        return -1;
+    *from = low;
     return 0;
 }
 
@@ -83,7 +83,7 @@ void decompress_edge(enc_vector<> *psi, rank_support_v<1> *rank_d, uint64_t inde
 
 #define EXACT 0
 #define CONTAINS 1
-int query_perform(enc_vector<> psi, bit_vector d, Edge query, int type)
+int query_perform(enc_vector<> psi, const bit_vector& d, Edge query)
 {
     // initialize structures for search.
     rank_support_v<1> rank_d(&d);
@@ -111,14 +111,13 @@ int query_perform(enc_vector<> psi, bit_vector d, Edge query, int type)
         to = psi[to-1]+1; //-1 +1 for staying in intervall and then extend it afterwards.
     }
 
-    if (type == 0)
+    from = select_d(query[0]), to = select_d(query[0]+1);
+    for (uint64_t i = from; i < to; i++) // to is inclusive here in the current implementation
     {
-        for (uint64_t i = from; i < to; i++) // to is inclusive here in the current implementation
-        {
-            if (psi[i] <= i) // Check if edge has no further nodes.
-            {  //TODO: Collect result.
-                decompress_edge(&psi, &rank_d, i); // psi[i] is the smallest index of the edge.
-            }
+        if (from <= psi[i] && psi[i] < to) // <= i) // Check if edge has no further nodes (Psi[i] < i).
+            // Need to check psi[i] \in [from, to) to secure that there is no lower node.
+        {  //TODO: Collect result.
+            decompress_edge(&psi, &rank_d, i); // psi[i] is the smallest index of the edge.
         }
     }
     return 0;
@@ -127,7 +126,7 @@ int query_perform(enc_vector<> psi, bit_vector d, Edge query, int type)
 #define EXACT 0
 #define CONTAINS 1
 // TODO: Use search intervals and different the 4 areas correctly.
-int query_perform_contains(enc_vector<> psi, bit_vector d, Edge query, int type)
+int query_perform_contains(enc_vector<> psi, const bit_vector& d, Edge query)
 {
     // initialize structures for search.
     rank_support_v<1> rank_d(&d);
@@ -141,41 +140,56 @@ int query_perform_contains(enc_vector<> psi, bit_vector d, Edge query, int type)
     }
 
     // Find interval for node query[0].
-    stack<SearchInterval> search_to_do = {SearchInterval(select_d(query[0]), select_d(query[0]+1), 1)};
+    stack<SearchInterval> search_to_do{};
+    search_to_do.emplace(select_d(query[0]), select_d(query[0]+1), 1);
 
     // Goal: Find the interval that matches query[1] and the set of intervals that point to nodes lower than query[1].
-    while (search_to_do.size() > 0)
+    while (!search_to_do.empty())
     {
         SearchInterval si = search_to_do.top();
         search_to_do.pop();
-        uint64_t next_from = select_d(query[si.index]), next_to = select_d(query[si.index]+1);
-        uint64_t from = si.lower_bound, to = si.higher_bound, lower_from = si.lower_bound, lower_to;
+        uint64_t next_from = select_d(query[si.index]),
+            next_to = select_d(query[si.index]+1);
+        uint64_t lower_from = si.lower_bound,
+            lower_to,
+            from = si.lower_bound,
+            to = si.higher_bound;
         int res = find_exact_next_interval(&psi, &from, &to, next_from, next_to);
+
+
+        // Matches with steps that are not in the query.
+        lower_to = from;
+        binary_search_left_jumps(&psi, &lower_from, &lower_to); // Only increases lower_from.
+        uint64_t start = lower_from;
+        uint64_t node_of_start = rank_d(psi[start]); // Only the change of a node is important.
+        uint64_t node_current;
+        for (uint64_t i = start+1; i < lower_to; i++)
+        {
+            node_current = rank_d(psi[i]);
+            if (node_current > node_of_start)
+            //if (d[i + 1]) // Is next a 1 → i is the end of interval.
+            {
+                search_to_do.emplace(psi[start], psi[i-1]+1, si.index);
+                // start = i + 1;
+                node_of_start = node_current;
+            }
+        }
+        if (start < lower_to) // add last interval
+        {
+            search_to_do.emplace(psi[start], psi[lower_to-1]+1, si.index);
+        }
+
+        // Exact next result. Added here, because then the queue stays more sorted regarding si.index (but not fully).
         if (res > 0)
-            if (si.index + 1 == query.size()) {
-                for (uint64_t i = from; i < to; i++) // to is inclusive here in the current implementation
+        {
+            if (si.index+1 == query.size()) {
+                for (uint64_t i = from; i < to; i++) // to is exclusive in the current implementation
                 {
                     decompress_edge(&psi, &rank_d, i);
                 }
             } else {
                 search_to_do.emplace(psi[from], psi[to - 1] + 1, si.index + 1);
-            } //-1 +1 for staying in intervall and then extend it afterwards.
-
-        // Matches with steps that are not in the query.
-        lower_to = from;
-        binary_search_left_jumps(&psi, &lower_from, &lower_to);
-        uint64_t start = lower_from;
-        for (uint64_t i = start; i < lower_to; i++)
-        {
-            if (d[i + 1]) // Is next a 1 → i is end of interval.
-            {
-                search_to_do.emplace(start, i, si.index);
-                start = i + 1;
-            }
-        }
-        if (start < lower_to) // add last interval
-        {
-            search_to_do.emplace(start, lower_to-1, si.index);
+            } //-1 +1 for staying in intervall and then extend it afterward.
         }
     }
 
@@ -187,16 +201,19 @@ int query(const string& filename, Edge query)
     enc_vector<> psi;
     bit_vector d;
     load(filename, &psi, &d);
-    query_perform(psi, d, std::move(query), 0);
+    query_perform_contains(psi, d, std::move(query));
     return 0;
 }
 
 int test_query(const char *filename)
 {
+    cout << "Test Query {0, 1, 4}" << endl;
     Edge e = {0, 1, 4};
     query(string(filename), e);
+    cout << "Test Query {1, 2, 4}" << endl;
     e = {1, 2, 4};
     query(string(filename), e);
+    cout << "Test Query {3, 1, 4}" << endl;
     e = {3, 1, 4};
     query(string(filename), e);
     return 0;

@@ -24,6 +24,15 @@ typedef struct {
     vector<Edge> edges;
 } HyperGraph;
 
+typedef struct {
+    bool encoded;
+    bit_vector D;
+    union {
+        int_vector<64> PSI;
+        enc_vector<> ePSI;
+    };
+} CompressedHyperGraph;
+
 void print_int_vector(int_vector<64> *vec) {
     std::cout << "int_vector: ";
     for (size_t i = 0; i < vec->size(); ++i) {
@@ -50,7 +59,12 @@ void print_psi(int_vector<> *vec) {
 
 void print_d(bit_vector *d)
 {
-    cout << *d << endl;
+    std::cout << "D  : ";
+    for (size_t i = 0; i < d->size(); ++i) {
+        std::cout << (*d)[i] << " ";
+    }
+    std::cout << std::endl;
+    // cout << *d << endl;
 }
 
 void print_psi_cycles(int_vector<> *vec) {
@@ -98,12 +112,19 @@ int parse_graph(const char *input_file, HyperGraph *graph)
     edge2[2] = 4;
     Edge edge3(5, 0, 64);
     util::set_to_id(edge3);
-    vector<Edge> edges = {edge2, edge1, edge3};
+    Edge edge4(2, 3, 64);
+    edge4[1] = 4;
+    Edge edge5(2, 0, 64);
+    edge5[1] = 4;
+    vector<Edge> edges = {edge1, edge2, edge3, edge4, edge5};
     graph->edges = edges;
-    graph->edge_count = 3;
+    graph->edge_count = 5;
+    cout << "Graph" << endl;
     print_int_vector(&edge1);
     print_int_vector(&edge2);
     print_int_vector(&edge3);
+    print_int_vector(&edge4);
+    print_int_vector(&edge5);
     return 0;
 }
 
@@ -137,6 +158,8 @@ int compute_linear_representation(HyperGraph *graph, int_vector<64> *linear)
         copy(edge.begin(), edge.end(), linear->begin() + pos);
         pos += edge.size();
     }
+
+    // Increase all values by 1, because 0 will be added by SDSL to construct the suffix array.
     for (size_t i = 0; i < linear->size(); i++) {
         (*linear)[i]++;
     }
@@ -145,16 +168,17 @@ int compute_linear_representation(HyperGraph *graph, int_vector<64> *linear)
 
 int adjust_psi(int_vector<> *psi) //, bit_vector *d)
 {
-    // TODO: Restriction: Self loops are maximal by this interpretation: Multiple self loops at the same node are treated as one.
+    // TODO: Restriction: Self loops are minimal by this interpretation:
+    //  Self loops with multiple connections are treated as self loops with only one connection per self loop.
     // Idea: Psi forms one big loop. I cut the loop each time we do a jump to an earlier position.
     uint64_t current_position = 0;
     uint64_t next = (*psi)[0]; // Definitely greater 0, because there is a next suffix (otherwise the whole graph is one rank-1 edge).
-    uint64_t last_first_edge_position = 0;
+    uint64_t last_first_node_position = 0;
     do  { // do while loop to avoid stopping at the first iteration.
         if (current_position > next)
         {
-            (*psi)[current_position] = last_first_edge_position;
-            last_first_edge_position = next;
+            (*psi)[current_position] = last_first_node_position;
+            last_first_node_position = next;
         }
         current_position = next;
         next = (*psi)[next];
@@ -208,10 +232,11 @@ int construct_hypercsa(const char *input_file, const char *output_file) {
 
     int_vector<64> linear_representation(size_of_hypergraph(&graph), 0, 64);
     compute_linear_representation(&graph, &linear_representation);
+    cout << "Linear Representation" << endl;
     print_int_vector(&linear_representation);
 
     // int_vector<>, 32, 32, sa_order_sa_sampling<>, isa_sampling<>, integer_alphabet
-    csa_sada<> csa;
+    csa_sada<> csa; // TODO: Use http://vios.dc.fi.udc.es/indexing/wsi/
     construct_im(csa, linear_representation, 8); // Note that csa.size = linear_representation.size + 1 (auto adds the 0 at the end)
     cout << "Size of CSA: " << size_in_bytes(csa) << " bytes, " << size_in_mega_bytes(csa) << "MB." << endl;
 
@@ -238,13 +263,16 @@ int construct_hypercsa(const char *input_file, const char *output_file) {
     bit_vector d(linear_representation.size()+1, 0); // +1 for an additional 1 at the end to enable interval search via select commands.
     calc_d(&linear_representation, &d);
     cout << "Size of HyperCSA: " << endl;
-    cout << "-   D:" << size_in_bytes(d) << "bytes, " << size_in_mega_bytes(d) << "MB." << endl;
-    cout << "- PSI:" << size_in_bytes(comp_psi) << "bytes, " << size_in_mega_bytes(comp_psi) << "MB." << endl;
-    cout << "- sum:" << size_in_bytes(d) + size_in_bytes(comp_psi) << "bytes, "
+    cout << "- D  : " << size_in_bytes(d) << "bytes, " << size_in_mega_bytes(d) << "MB." << endl;
+    cout << "- PSI: " << size_in_bytes(comp_psi) << "bytes, " << size_in_mega_bytes(comp_psi) << "MB." << endl;
+    cout << "- sum: " << size_in_bytes(d) + size_in_bytes(comp_psi) << "bytes, "
          << size_in_mega_bytes(d) + size_in_mega_bytes(comp_psi) << "MB." << endl;
 
+    cout << "Data to review" << endl;
     print_d(&d);
+    print_psi(&psi_copy);
     print_psi_cycles(&psi_copy);
+    cout << "Decompress" << endl;
     print_edges(&psi_copy, &d);
 
     write_hyper_csa(output_file, &d, &comp_psi);
