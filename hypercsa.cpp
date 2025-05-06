@@ -51,7 +51,7 @@ int query_hypercsa(const char *input_file, int type, const char *node_query)
     return 0;
 }
 
-void query_hypercsa_from_file(char* input_file, int type, const char* test_file)
+void query_hypercsa_from_file(const char* input_file, int type, const char* test_file)
 {
     HyperGraph graph;
     parse_graph(test_file, graph);

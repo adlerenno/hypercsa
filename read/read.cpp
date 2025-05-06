@@ -88,9 +88,9 @@ EdgeList query_perform(enc_vector<> psi, const bit_vector& d, Edge query)
 
     // Sort the query for processing.
     sort(query.begin(), query.end());
-    for (unsigned long long & i : query)
+    for (int i=0; i < query.size(); i++)
     {
-        i++; // Add 1, as also the compression is 1-based on nodes.
+        query[i]++; // Add 1, as also the compression is 1-based on nodes.
     }
 
     // Find interval for node query[0].
@@ -132,9 +132,9 @@ EdgeList query_perform_contains(enc_vector<> psi, const bit_vector& d, Edge quer
 
     // Sort the query for processing.
     sort(query.begin(), query.end());
-    for (unsigned long long & i : query)
+    for (int i=0; i < query.size(); i++)
     {
-        i++; // Add 1, as also the compression is 1-based on nodes.
+        query[i]++; // Add 1, as also the compression is 1-based on nodes.
     }
 
     // Find interval for node query[0].
@@ -207,9 +207,9 @@ EdgeList query_perform_contains_correct(CompressedHyperGraph& g, Edge& query)
 
     // Sort the query for processing.
     sort(query.begin(), query.end());
-    for (unsigned long long & i : query)
+    for (int i=0; i < query.size(); i++)
     {
-        i++; // Add 1, as also the compression is 1-based on nodes.
+        query[i]++; // Add 1, as also the compression is 1-based on nodes.
     }
 
     // Find smallest degree of nodes in query.
