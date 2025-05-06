@@ -107,18 +107,19 @@ CompressedHyperGraph construct(HyperGraph& graph) {
 #ifdef TRACK_MEMORY
     memory_monitor::start();
 #endif
-    bool verbose = true;
 
     LinearRepresentation linear_representation(size_of_hypergraph(graph), 0, 64);
     compute_linear_representation(graph, &linear_representation);
-    if (verbose)
+#ifdef VERBOSE_DEBUG
         print_linear_representation(&linear_representation);
+#endif
 
     //
     csa_sada<enc_vector<>, 32, 32, sa_order_sa_sampling<>, isa_sampling<>, int_alphabet<>> csa; // TODO: Use http://vios.dc.fi.udc.es/indexing/wsi/
     construct_im(csa, linear_representation, 8); // Note that csa.size = linear_representation.size + 1 (auto adds the 0 at the end)
-    if (verbose)
+#ifdef VERBOSE
         cout << "Size of CSA: " << size_in_bytes(csa) << " bytes, " << size_in_mega_bytes(csa) << "MB." << endl;
+#endif
 
     // Adjust PSI
     int_vector<> psi_copy(csa.size());
@@ -132,11 +133,10 @@ CompressedHyperGraph construct(HyperGraph& graph) {
 #else
     copy(csa.psi.begin(), csa.psi.end(), psi_copy.begin());
 #endif
-    if (verbose)
-    {
+#ifdef VERBOSE
         print_psi_vector(&psi_copy);
         print_psi_vector_cycles(&psi_copy);
-    }
+#endif
 
     adjust_psi(&psi_copy);
 

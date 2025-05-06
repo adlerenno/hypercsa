@@ -10,7 +10,9 @@
 #include "read.h"
 
 #include "test.h"
+#ifdef VERBOSE_DEBUG
 #include "prints.hpp"
+#endif
 
 using namespace std;
 
@@ -65,13 +67,11 @@ void query_hypercsa_from_file(const char* input_file, int type, const char* test
 
 int test_hypercsa(const char *output_file)
 {
-    bool verbose = true;
     HyperGraph graph;
     test_graph(graph);
     CompressedHyperGraph compressed_graph = construct(graph);
 
-    if (verbose)
-    {
+#ifdef VERBOSE_DEBUG
         cout << "Data to review" << endl;
         print_d(&compressed_graph);
         print_psi(&compressed_graph);
@@ -84,7 +84,7 @@ int test_hypercsa(const char *output_file)
         cout << "- PSI: " << size_in_bytes(compressed_graph.PSI) << "bytes, " << size_in_mega_bytes(compressed_graph.PSI) << "MB." << endl;
         cout << "- sum: " << size_in_bytes(compressed_graph.D) + size_in_bytes(compressed_graph.PSI) << "bytes, "
              << size_in_mega_bytes(compressed_graph.D) + size_in_mega_bytes(compressed_graph.PSI) << "MB." << endl;
-    }
+#endif
 
     write_hyper_csa(output_file, compressed_graph);
     return 0;
