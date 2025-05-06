@@ -25,12 +25,20 @@ option(CLI "Adds a command-line-interface executable" ON)
 # get files with "find include src -type f -name '*.c' | sort"
 set(SOURCES
         compress/compress.cpp
-        compress/compress.h
+        compress/compress.hpp
         util/panic.c
         util/panic.h
         util/trap.h
-        util/type_definitions.h
+        util/type_definitions.hpp
         read/read.cpp
+        util/prints.hpp
+        util/prints.cpp
+        util/test.h
+        util/test.cpp
+        compress/parse.cpp
+        compress/parse.hpp
+        hypercsa.cpp
+        hypercsa.h
 )
 
 set(INCLUDES
@@ -67,7 +75,7 @@ endif()
 # CLI
 if(CLI)
   add_executable(${PROJECT_NAME}-cli
-          test.cpp
+          main.cpp
   )
   add_dependencies(${PROJECT_NAME}-cli ${PROJECT_NAME}) # add library add dependency
 
@@ -75,7 +83,7 @@ if(CLI)
   target_link_directories(${PROJECT_NAME}-cli PRIVATE "/usr/local/lib")  # necessary on MAC to find libraries.
 
   target_link_libraries(${PROJECT_NAME}-cli PRIVATE ${PROJECT_NAME})
-  target_link_libraries(${PROJECT_NAME}-cli PRIVATE serd-0) # RDF-parser
+  target_link_libraries(${PROJECT_NAME} PRIVATE sdsl divsufsort divsufsort64)
 
   if(TRACE_SYMBOLS)
     target_link_options(${PROJECT_NAME}-cli PRIVATE -rdynamic)

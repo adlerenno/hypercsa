@@ -5,12 +5,9 @@
 #ifndef HYPERCSA_READ_H
 #define HYPERCSA_READ_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-    int test_query(const char *input_file);
-#ifdef __cplusplus
-}
-#endif
+#include "type_definitions.hpp"
+using namespace std;
+
+EdgeList query(CompressedHyperGraph& graph, Edge query, int type);
 
 #endif //HYPERCSA_READ_H
