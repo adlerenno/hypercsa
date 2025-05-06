@@ -47,9 +47,9 @@ int parse_graph(const char *input_file, HyperGraph& graph)
     {
         for (auto & edge : edges)
         {
-            for (unsigned long long & i : edge)
+            for (int i=0; i < edge.size(); i++)
             {
-                i -= lowest_node;
+                edge[i] -= lowest_node;
             }
         }
     }
