@@ -254,7 +254,9 @@ EdgeList query_perform_contains_correct(CompressedHyperGraph& g, Edge& query)
         {
             Edge e = decompress_edge(&g.PSI, rank_d, i);
             edge_list.push_back(e);
+#ifdef VERBOSE_DEBUG
             print_edge(&e);
+#endif
         }
     }
 
