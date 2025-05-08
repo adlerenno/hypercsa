@@ -49,7 +49,8 @@ int construct_hypercsa(const char *input_file, const char *output_file)
 int query_hypercsa(const char *input_file, int type, const char *node_query)
 {
     CompressedHyperGraph compressed_graph = load_hyper_csa(input_file);
-    query(compressed_graph, parse_edge_from_string(node_query), type);
+    EdgeList el = query(compressed_graph, parse_edge_from_string(node_query), type);
+    cout << "Query has " << el.size() << " results." << endl;
     return 0;
 }
 

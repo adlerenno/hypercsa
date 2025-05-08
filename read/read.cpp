@@ -235,10 +235,7 @@ EdgeList query_perform_contains_correct(CompressedHyperGraph& g, Edge& query)
 
         uint64_t current_sa_position = g.PSI[i];
         while (current_sa_position != i && current_query_position != best_start_node_index) {
-            if (g.PSI[current_sa_position] <= current_sa_position && current_query_position != 0)
-                // Downward jump only allowed if the check for the next position is the lowest node (aka cur_qer_pos=0)
-                // Otherwise, a higher node is never reached by this edge.
-                break; // Faster omit of not correct edge.
+            //__builtin_prefetch((const void *) &g.PSI[g.PSI[current_sa_position]], 0, 0); //One or more steps of Psi ahead?
             uint64_t node = rank_d(current_sa_position+1);
             if (node > query[current_query_position] && current_query_position != 0) // Forward jump is greater than the next query node:
                 // this edge does not contain the next query node.
@@ -248,6 +245,10 @@ EdgeList query_perform_contains_correct(CompressedHyperGraph& g, Edge& query)
                 current_query_position++;
                 current_query_position %= query.size();
             }
+            if (g.PSI[current_sa_position] <= current_sa_position && current_query_position != 0)
+                // Downward jump only allowed if the check for the next position is the lowest node (aka cur_qer_pos=0)
+                // Otherwise, a higher node is never reached by this edge.
+                break; // Faster omit of not correct edge.
             current_sa_position = g.PSI[current_sa_position];
         }
         if (current_query_position == best_start_node_index)
