@@ -106,6 +106,7 @@ int calc_d(int_vector<64> *linear, bit_vector *d)
 CompressedHyperGraph construct(HyperGraph& graph) {
 #ifdef TRACK_MEMORY
     memory_monitor::start();
+    memory_monitor::event("construct linear representation");
 #endif
 
     LinearRepresentation linear_representation(size_of_hypergraph(graph), 0, 64);
@@ -114,7 +115,8 @@ CompressedHyperGraph construct(HyperGraph& graph) {
         print_linear_representation(&linear_representation);
 #endif
 
-    //
+#define SDSL_PSI
+#ifdef SDSL_PSI
     csa_sada<enc_vector<>, 32, 32, sa_order_sa_sampling<>, isa_sampling<>, int_alphabet<>> csa; // TODO: Use http://vios.dc.fi.udc.es/indexing/wsi/
     construct_im(csa, linear_representation, 8); // Note that csa.size = linear_representation.size + 1 (auto adds the 0 at the end)
 #ifdef VERBOSE
@@ -137,16 +139,37 @@ CompressedHyperGraph construct(HyperGraph& graph) {
         print_psi_vector(&psi_copy);
         print_psi_vector_cycles(&psi_copy);
 #endif
+#else //SDSL_PSI
+    cache_config config(false);  // don't store on disk
 
+    // Step 1: Construct SA
+    int_vector<> sa;
+    construct(sa, linear_representation, config);
+
+    // Step 2: Construct PSI
+    int_vector<> psi(sa.size());
+    for (size_t i = 0; i < sa.size(); ++i) {
+        psi[sa[i]] = (i + 1) % sa.size();  // wrap-around
+    }
+#endif //SDSL_PSI
+
+#ifdef TRACK_MEMORY
+      memory_monitor::event("adjust_psi");
+#endif
     adjust_psi(&psi_copy);
-
+#ifdef TRACK_MEMORY
+      memory_monitor::event("encode psi");
+#endif
     enc_vector<> comp_psi(psi_copy);
-
+#ifdef TRACK_MEMORY
+      memory_monitor::event("compute d");
+#endif
     // Create D.
     bit_vector d(linear_representation.size()+1, 0); // +1 for an additional 1 at the end to enable interval search via select commands.
     calc_d(&linear_representation, &d);
 
 #ifdef TRACK_MEMORY
+    memory_monitor::event("finished");
     memory_monitor::stop();
     memory_monitor::write_memory_log<JSON_FORMAT>(cout);
 #endif

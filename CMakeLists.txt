@@ -19,6 +19,9 @@ add_definitions(-D_LARGEFILE_SOURCE -D_LARGE_FILES -D_FILE_OFFSET_BITS=64)
 option(OPTIMIZE_FOR_NATIVE "Build with -march=native and -mtune=native" ON)
 option(TRACE_SYMBOLS "Add the trace symbols for the panic function" ON)
 option(CLI "Adds a command-line-interface executable" ON)
+option(TRACK_MEMORY "Activates SDSLs Memory Manager during construction." ON)
+option(VERBOSE "Adds a view command line outputs." OFF)
+option(VERBOSE_DEBUG "Adds much output to the command line, including whole results of steps" OFF)
 
 # configure_file("include/cgraph.cmake.h" "${CMAKE_CURRENT_BINARY_DIR}/cgraph.h" @ONLY)
 
@@ -70,6 +73,18 @@ endif()
 # adding the trace symbols
 if(TRACE_SYMBOLS)
   target_link_options(${PROJECT_NAME} PRIVATE -rdynamic)
+endif()
+
+if (TRACK_MEMORY)
+  add_definitions(-DTRACK_MEMORY)
+endif()
+
+if (VERBOSE)
+  add_definitions(-DVERBOSE)
+endif()
+
+if (VERBOSE_DEBUG)
+  add_definitions(-DVERBOSE_DEBUG)
 endif()
 
 # CLI

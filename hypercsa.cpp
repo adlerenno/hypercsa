@@ -40,7 +40,7 @@ Edge parse_edge_from_string(const std::string& input) {
 int construct_hypercsa(const char *input_file, const char *output_file)
 {
     HyperGraph graph;
-    parse_graph(input_file, graph);
+    parse_graph(input_file, graph, true);
     CompressedHyperGraph compressed_graph = construct(graph);
     write_hyper_csa(output_file, compressed_graph);
     return 0;
@@ -56,7 +56,7 @@ int query_hypercsa(const char *input_file, int type, const char *node_query)
 void query_hypercsa_from_file(const char* input_file, int type, const char* test_file)
 {
     HyperGraph graph;
-    parse_graph(test_file, graph);
+    parse_graph(test_file, graph, false);
     CompressedHyperGraph compressed_graph = load_hyper_csa(input_file);
     for (int i=0; i < graph.edge_count; i++)
     {

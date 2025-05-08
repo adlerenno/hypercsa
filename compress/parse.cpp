@@ -8,7 +8,10 @@
 using namespace std;
 
 #define MAX_LINE_LENGTH (1024).
-int parse_graph(const char *input_file, HyperGraph& graph)
+/*
+ * Argument base_zero: Reduce all node numbers such that the lowest node has id 0.
+ */
+int parse_graph(const char *input_file, HyperGraph& graph, bool base_zero)
 {
     std::ifstream infile(input_file);
     std::string line;
@@ -43,7 +46,7 @@ int parse_graph(const char *input_file, HyperGraph& graph)
     }
 
     cout << "Lowest node: " << lowest_node << endl;
-    if (lowest_node != 0) // If not 0-based, transform it 0-based.
+    if (lowest_node != 0 && base_zero) // If not 0-based, transform it 0-based.
     {
         for (auto & edge : edges)
         {
