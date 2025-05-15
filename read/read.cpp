@@ -108,15 +108,17 @@ EdgeList query_perform(enc_vector<> psi, const bit_vector& d, Edge query)
         to = psi[to-1]+1; //-1 +1 for staying in intervall and then extend it afterward.
     }
 
-    from = select_d(query[0]), to = select_d(query[0]+1);
+    uint64_t next_from = select_d(query[0]), next_to = select_d(query[0]+1);
     for (uint64_t i = from; i < to; i++) // to is inclusive here in the current implementation
     {
-        if (from <= psi[i] && psi[i] < to) // <= i) // Check if edge has no further nodes (Psi[i] < i).
+        if (next_from <= psi[i] && psi[i] < next_to) // <= i) // Check if edge has no further nodes (Psi[i] < i).
             // Need to check psi[i] \in [from, to) to secure that there is no lower node.
-        {  //TODO: Collect result.
+        {
             Edge e = decompress_edge(&psi, rank_d, i); // psi[i] is the smallest index of the edge.
             edge_list.push_back(e);
+#ifdef VERBOSE_DEBUG
             print_edge(&e);
+#endif
         }
     }
     return edge_list;
