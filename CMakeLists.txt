@@ -20,7 +20,7 @@ option(OPTIMIZE_FOR_NATIVE "Build with -march=native and -mtune=native" ON)
 option(TRACE_SYMBOLS "Add the trace symbols for the panic function" ON)
 option(CLI "Adds a command-line-interface executable" ON)
 option(TRACK_MEMORY "Activates SDSLs Memory Manager during construction." ON)
-option(VERBOSE "Adds a view command line outputs." OFF)
+option(VERBOSE "Adds a few command line outputs." OFF)
 option(VERBOSE_DEBUG "Adds much output to the command line, including whole results of steps" OFF)
 
 # configure_file("include/cgraph.cmake.h" "${CMAKE_CURRENT_BINARY_DIR}/cgraph.h" @ONLY)
@@ -63,7 +63,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDES})
 target_link_libraries(${PROJECT_NAME} PRIVATE m) # link with math library
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER ${CMAKE_CURRENT_BINARY_DIR}/cgraph.h)
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER ${CMAKE_CURRENT_BINARY_DIR}/hypercsa.h)
 
 # build with -march=native if OPTIMIZE_FOR_NATIVE option set
 if(OPTIMIZE_FOR_NATIVE)
@@ -98,7 +98,7 @@ if(CLI)
   target_link_directories(${PROJECT_NAME}-cli PRIVATE "/usr/local/lib")  # necessary on MAC to find libraries.
 
   target_link_libraries(${PROJECT_NAME}-cli PRIVATE ${PROJECT_NAME})
-  target_link_libraries(${PROJECT_NAME} PRIVATE sdsl divsufsort divsufsort64)
+  target_link_libraries(${PROJECT_NAME}-cli PRIVATE sdsl divsufsort divsufsort64)
 
   if(TRACE_SYMBOLS)
     target_link_options(${PROJECT_NAME}-cli PRIVATE -rdynamic)
