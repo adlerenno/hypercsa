@@ -21,7 +21,7 @@ using namespace std::filesystem;
 static void print_usage(bool error) {
 	static const char* usage_str = \
 	"Usage: hypercsa-cli\n"
-    "-h,--help                                 show this help\n"
+    "-h                                        show this help\n"
     "-i [input] -o [output]                    to compress a hypergraph. hypergraph format is one edge per line, nodes are integers and comma separated\n"
     "-i [input] -t [type] -q [list of nodes]   evaluate query on compressed hypergraph. query is a comma-separated-list of integers\n"
     "-i [input] -t [type] -f [queryfile]       evaluates all queries in the file, one query per line.\n"

@@ -22,11 +22,11 @@ There are the following options available:
 
 - OPTIMIZE_FOR_NATIVE "Build with -march=native and -mtune=native" (Default: ON)
 
-- TRACE_SYMBOLS "Add the trace symbols for the panic function" (Default: ON)
+- TRACE_SYMBOLS "Add the trace symbols for the panic function" (Default: OFF)
 
 - CLI "Adds a command-line-interface executable" (Default: ON)
 
-- TRACK_MEMORY "Activates SDSLs Memory Manager during construction." (Default: ON)
+- TRACK_MEMORY "Activates SDSLs Memory Manager during construction." (Default: OFF)
 
 - VERBOSE "Adds a few command line outputs." (Default: OFF)
 
@@ -38,7 +38,7 @@ For example, `-DVERBOSE=on` in `cmake -DVERBOSE=on ..`enables the command line o
 
 ```
 Usage: hypercsa-cli
-   -h,--help                                 show this help
+   -h,                                       show this help
    -i [input] -o [output]                    to compress a hypergraph. hypergraph format is one edge per line, nodes are integers and comma separated
    -i [input] -t [type] -q [list of nodes]   evaluate query on compressed hypergraph. query is a comma-separated-list of integers
    -i [input] -t [type] -f [queryfile]       evaluates all queries in the file, one query per line.
