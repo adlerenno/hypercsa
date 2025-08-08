@@ -42,6 +42,22 @@ int construct_hypercsa(const char *input_file, const char *output_file)
     HyperGraph graph;
     parse_graph(input_file, graph, true);
     CompressedHyperGraph compressed_graph = construct(graph);
+
+#ifdef VERBOSE_DEBUG
+    cout << "Data to review" << endl;
+        print_d(&compressed_graph);
+        print_psi(&compressed_graph);
+        print_psi_cycles(&compressed_graph);
+        cout << "Decompress" << endl;
+        print_edges(&compressed_graph);
+
+        cout << "Size of HyperCSA: " << endl;
+        cout << "- D  : " << size_in_bytes(compressed_graph.D) << "bytes, " << size_in_mega_bytes(compressed_graph.D) << "MB." << endl;
+        cout << "- PSI: " << size_in_bytes(compressed_graph.PSI) << "bytes, " << size_in_mega_bytes(compressed_graph.PSI) << "MB." << endl;
+        cout << "- sum: " << size_in_bytes(compressed_graph.D) + size_in_bytes(compressed_graph.PSI) << "bytes, "
+             << size_in_mega_bytes(compressed_graph.D) + size_in_mega_bytes(compressed_graph.PSI) << "MB." << endl;
+#endif
+
     write_hyper_csa(output_file, compressed_graph);
     return 0;
 }

@@ -1,3 +1,5 @@
 /datasets/
 /test.hcsa
 /cmake-build-debug/
+/hypergraph_testfile.txt
+/test_cedric.cpp

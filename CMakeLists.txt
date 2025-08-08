@@ -17,8 +17,8 @@ add_definitions(-D_LARGEFILE_SOURCE -D_LARGE_FILES -D_FILE_OFFSET_BITS=64)
 
 # Possibility to enable -march=native to increase performance of popcount
 option(OPTIMIZE_FOR_NATIVE "Build with -march=native and -mtune=native" ON)
-option(TRACE_SYMBOLS "Add the trace symbols for the panic function" OFF)
 option(CLI "Adds a command-line-interface executable" ON)
+option(TRACE_SYMBOLS "Add the trace symbols for the panic function" OFF)
 option(TRACK_MEMORY "Activates SDSLs Memory Manager during construction." OFF)
 option(VERBOSE "Adds a few command line outputs." OFF)
 option(VERBOSE_DEBUG "Adds much output to the command line, including whole results of steps" OFF)

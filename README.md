@@ -32,7 +32,7 @@ There are the following options available:
 
 - VERBOSE_DEBUG "Adds much output to the command line, including whole results of steps" (Default: OFF)
 
-For example, `-DVERBOSE=on` in `cmake -DVERBOSE=on ..`enables the command line outputs.
+For example, `-DVERBOSE=on` in `cmake -DVERBOSE=on ..` enables the command line outputs.
 
 # CLI
 

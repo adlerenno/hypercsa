@@ -8,6 +8,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    /**
+    * Type used as the handler for the API calls for compressing and writing graphs.
+    * The exact type of the handler is not defined in the header,
+    * because it should only be known internally by the cgraph functions.
+    */
+
+
+    ///////////// Test and CLI related operations ////////////////////////
     int construct_hypercsa(const char *input_file, const char *output_file);
     int query_hypercsa(const char *input_file, int type, const char *node_query); //node_query is expected
     // to be a comma-separated list of numbers.
