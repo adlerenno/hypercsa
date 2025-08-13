@@ -13,6 +13,8 @@
 #define EXACT 0
 #define CONTAIN 1
 
+typedef uint64_t Node;
+typedef uint64_t Index; // Used for any Position related values.
 typedef sdsl::int_vector<64> Edge;
 typedef std::vector<Edge> EdgeList;
 
@@ -20,7 +22,7 @@ typedef sdsl::int_vector<64> LinearRepresentation;
 
 class HyperGraph {
 public:
-    uint64_t edge_count;
+    Index edge_count;
     EdgeList edges;
 
     HyperGraph() : edge_count(0) {}
@@ -33,6 +35,13 @@ public:
 
     CompressedHyperGraph(sdsl::bit_vector d, const sdsl::enc_vector<>& psi)
             : D(std::move(d)), PSI(psi) {}
+};
+
+class EdgeIterator {
+    CompressedHyperGraph graph;
+
+    EdgeIterator(CompressedHyperGraph g)
+            : graph(g) {}
 };
 
 #endif //HYPERCSA_TYPE_DEFINITIONS_HPP

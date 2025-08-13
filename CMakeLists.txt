@@ -27,19 +27,22 @@ option(VERBOSE_DEBUG "Adds much output to the command line, including whole resu
 
 # get files with "find include src -type f -name '*.c' | sort"
 set(SOURCES
-        compress/compress.cpp
-        compress/compress.hpp
         util/panic.c
         util/panic.h
         util/trap.h
         util/type_definitions.hpp
-        read/read.cpp
         util/prints.hpp
         util/prints.cpp
         util/test.h
         util/test.cpp
+        compress/compress.cpp
+        compress/compress.hpp
         compress/parse.cpp
         compress/parse.hpp
+        read/read.cpp
+        read/read.hpp
+        read/modify.cpp
+        read/modify.hpp
         hypercsa.cpp
         hypercsa.h
 )

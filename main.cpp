@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
     int type = 0;
     bool mode_compress = false;
     bool mode_read = false;
-    while ((opt = getopt(argc, argv, "hi:o:t:q:f:")) != -1) {
+    while ((opt = getopt(argc, argv, "hi:o:t:q:f:x")) != -1) {
         switch (opt) {
             case 'i':
                 input_file = optarg;
@@ -102,6 +102,13 @@ int main(int argc, char** argv) {
                     return EXIT_FAILURE;
                 }
                 break;
+            case 'x': // Test mode
+                //test_hypercsa("/Users/eadler/Documents/projects/hypercsa/test.hcsa");
+                //test_hypercsa_delete_edge();
+                //test_hypercsa_delete_node_from_edge();
+                test_hypercsa_insert_node_to_edge();
+                //test_query("/Users/eadler/Documents/projects/hypercsa/test.hcsa");
+                return 0;
             case 'h':
             default:
                 print_usage(true);

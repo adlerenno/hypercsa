@@ -2,7 +2,7 @@
 // Created by Enno Adler on 02.04.25.
 //
 
-#include "read.h"
+#include "read.hpp"
 
 #include <algorithm>
 
@@ -18,6 +18,20 @@
 
 using namespace sdsl;
 using namespace std;
+
+bool read_edges_equal(CompressedHyperGraph &graph, Index edge1, Index edge2)
+{
+    if (edge1 == edge2)
+        return true;
+    Index pos = graph.PSI[edge1];
+    while (pos != edge1)
+    {
+        if (pos == edge2)
+            return true;
+        pos = graph.PSI[pos];
+    }
+    return false;
+}
 
 struct SearchInterval {
     uint64_t lower_bound;
