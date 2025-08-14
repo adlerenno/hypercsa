@@ -14,10 +14,11 @@ extern "C" {
     // to be a comma-separated list of numbers.
     void query_hypercsa_from_file(const char* input_file, int type, const char* test_file);
 
-    int test_hypercsa(const char *output_file);
+    int test_hypercsa_create(const char *output_file);
     int test_hypercsa_delete_edge();
     int test_hypercsa_delete_node_from_edge();
     int test_hypercsa_insert_node_to_edge();
+    int test_hypercsa_insert_edge();
     int test_query(const char *input_file);
 #ifdef __cplusplus
 }

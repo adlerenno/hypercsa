@@ -84,6 +84,21 @@ void print_psi_cycles(CompressedHyperGraph *g) {
     cout << endl;
 }
 
+bool check_and_print_sanity(CompressedHyperGraph &g)
+{
+    cout << "Sanity check: ";
+    for (Index i = 0; i < g.PSI.size(); i++)
+    {
+        if (g.D[i] == 0 && g.PSI[i-1] >= g.PSI[i])
+        {
+            cout << "false" << "\n";
+            return false;
+        }
+    }
+    cout << "true" << "\n";
+    return true;
+}
+
 void print_edges(CompressedHyperGraph *g) {
     rank_support_v<1> rank_d(&(g->D));
     for (size_t i = 0; i < g->PSI.size(); ++i) {

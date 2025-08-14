@@ -103,10 +103,11 @@ int main(int argc, char** argv) {
                 }
                 break;
             case 'x': // Test mode
-                //test_hypercsa("/Users/eadler/Documents/projects/hypercsa/test.hcsa");
-                //test_hypercsa_delete_edge();
-                //test_hypercsa_delete_node_from_edge();
+                test_hypercsa_create("/Users/eadler/Documents/projects/hypercsa/test.hcsa");
+                test_hypercsa_delete_edge();
+                test_hypercsa_delete_node_from_edge();
                 test_hypercsa_insert_node_to_edge();
+                test_hypercsa_insert_edge();
                 //test_query("/Users/eadler/Documents/projects/hypercsa/test.hcsa");
                 return 0;
             case 'h':

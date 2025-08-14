@@ -344,9 +344,116 @@ int modify_insert_node_to_edge(CompressedHyperGraph &hgraph, Index pos, Node nod
     return 0;
 }
 
+int modify_compare_edge(CompressedHyperGraph &hgraph, Index pos, Edge &edge, rank_support_v<> &rank_d)
+{
+    pos = hgraph.PSI[pos];
+    for (Index i_rank = 1; i_rank < edge.size(); i_rank++)
+    {
+        Node current = rank_d.rank(pos)-1;
+        if (current == edge[i_rank])
+        {}
+        else if (current < edge[i_rank])
+            return 1;
+        else return -1;
+    }
+    if (hgraph.PSI[pos] < pos)
+        return 0; // It also is L-Type -> the suffixes are equal.
+    else
+        return -1; // The edge in the structure contains more nodes -> it is larger.
+}
 
+Index modify_find_insert_position_of_first_node(CompressedHyperGraph &hgraph, Edge &edge, Index from, Index to, rank_support_v<> &rank_d)
+{
+    Index middle = from;
+    while (from < to) {
+        middle = (from) + (to - from) / 2;
+        int comp = modify_compare_edge(hgraph, middle, edge, rank_d);
+        if (comp == 0)
+            return middle;
+        else if (comp == 1)
+            from = middle + 1;
+        else
+            to = middle;
+    }
+    return from;
+}
 
 int modify_insert_edge(CompressedHyperGraph &hgraph, Edge edge)
 {
+    // 1. Find positions.
+    rank_support_v<1> rank_d(&hgraph.D);
+    select_support_mcl<1> select_d(&hgraph.D);
+    Index from = select_d.select(edge[0]+1);
+    Index to = select_d.select(edge[0]+2);
+    Index insert_position = modify_find_insert_position_of_first_node(hgraph, edge, from, to, rank_d);
 
+    bit_vector inserts(hgraph.D.size(), 0);
+    inserts[insert_position] = true;
+#ifdef VERBOSE_DEBUG
+    cout << "Insert Positions: " << insert_position;
+#endif
+    for (Index i_rank = edge.size()-1; i_rank > 0; i_rank--)
+    {
+        from = select_d.select(edge[i_rank]+1);
+        to = select_d.select(edge[i_rank]+2);
+        insert_position = modify_search_insert_position(hgraph.PSI, from, to, insert_position);
+        inserts[insert_position] = true;
+#ifdef VERBOSE_DEBUG
+        cout << " %llu" << insert_position;
+#endif
+    }
+#ifdef VERBOSE_DEBUG
+    cout << "\n";
+#endif
+
+    // 2. Compute updated D
+    bit_vector new_d(hgraph.D.size() + edge.size(), 0);
+    Index i_new_d = 0;
+    Node node_current = -1;
+    Index edge_current = 0;
+    for (Index i_old_d = 0; i_old_d < hgraph.D.size(); i_old_d++)
+    {
+        new_d[i_new_d] = hgraph.D[i_old_d];
+        i_new_d++;
+        if (hgraph.D[i_old_d] == 1) {
+            node_current++;
+            if (edge_current < edge.size() && node_current == edge[edge_current])
+            {
+                new_d[i_new_d] = false;
+                i_new_d++;
+                edge_current++;
+            }
+        }
+    }
+
+    // 3. Compute updated PSI
+    rank_support_v<1> rank_inserts(&inserts);
+    int_vector<> new_psi(hgraph.PSI.size() + edge.size());
+    Index i_new_psi = 0;
+    for (Index i_old_psi = 0; i_old_psi < hgraph.PSI.size(); i_old_psi++)
+    {
+        if (inserts[i_old_psi] == 1) // skip the positions of the new edge.
+            i_new_psi++;
+        new_psi[i_new_psi] = hgraph.PSI[i_old_psi] + rank_inserts.rank(hgraph.PSI[i_old_psi]+1);
+        i_new_psi++;
+    }
+    // Set the jumps of the new edge.
+    select_support_mcl<1> select_inserts(&inserts);
+    Index last_pos = select_inserts.select(edge.size()) + edge.size() - 1; // set the downward jump first.
+    Index next_pos = select_inserts.select(1);
+    assert(new_psi[last_pos] == 0);
+    new_psi[last_pos] = next_pos;
+    for (Index i_rank = 1; i_rank < edge.size(); i_rank++)
+    {
+        last_pos = next_pos;
+        next_pos = select_inserts.select(i_rank+1) + i_rank;
+        assert(new_psi[last_pos] == 0);
+        new_psi[last_pos] = next_pos;
+    }
+
+    // 4. Override old arrays.
+    enc_vector<> comp_psi(new_psi);
+    hgraph.D = std::move(new_d);
+    hgraph.PSI = std::move(comp_psi);
+    return 0;
 }

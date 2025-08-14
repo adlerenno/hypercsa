@@ -97,9 +97,10 @@ int construct_hypercsa(const char *input_file, const char *output_file)
     cout << "Data to review" << endl;
         print_d(&compressed_graph);
         print_psi(&compressed_graph);
-        print_psi_cycles(&compressed_graph);
+    check_and_print_sanity(compressed_graph);
+        //print_psi_cycles(&compressed_graph);
         cout << "Decompress" << endl;
-        print_edges(&compressed_graph);
+        //print_edges(&compressed_graph);
 
         cout << "Size of HyperCSA: " << endl;
         cout << "- D  : " << size_in_bytes(compressed_graph.D) << "bytes, " << size_in_mega_bytes(compressed_graph.D) << "MB." << endl;
@@ -132,7 +133,7 @@ void query_hypercsa_from_file(const char* input_file, int type, const char* test
     }
 }
 
-int test_hypercsa(const char *output_file)
+int test_hypercsa_create(const char *output_file)
 {
     HyperGraph graph;
     test_graph(graph);
@@ -142,6 +143,7 @@ int test_hypercsa(const char *output_file)
         cout << "Data to review" << endl;
         print_d(&compressed_graph);
         print_psi(&compressed_graph);
+    check_and_print_sanity(compressed_graph);
         print_psi_cycles(&compressed_graph);
         cout << "Decompress" << endl;
         print_edges(&compressed_graph);
@@ -167,6 +169,7 @@ int test_hypercsa_delete_edge()
     cout << "Data to review" << endl;
         print_d(&compressed_graph);
         print_psi(&compressed_graph);
+    check_and_print_sanity(compressed_graph);
         print_psi_cycles(&compressed_graph);
         cout << "Decompress" << endl;
         print_edges(&compressed_graph);
@@ -191,6 +194,7 @@ int test_hypercsa_delete_node_from_edge()
     cout << "Data to review" << endl;
     print_d(&compressed_graph);
     print_psi(&compressed_graph);
+    check_and_print_sanity(compressed_graph);
     print_psi_cycles(&compressed_graph);
     cout << "Decompress" << endl;
     print_edges(&compressed_graph);
@@ -215,6 +219,48 @@ int test_hypercsa_insert_node_to_edge()
     cout << "Data to review" << endl;
     print_d(&compressed_graph);
     print_psi(&compressed_graph);
+    check_and_print_sanity(compressed_graph);
+    print_psi_cycles(&compressed_graph);
+    cout << "Decompress" << endl;
+    print_edges(&compressed_graph);
+
+    cout << "Size of HyperCSA: " << endl;
+    cout << "- D  : " << size_in_bytes(compressed_graph.D) << "bytes, " << size_in_mega_bytes(compressed_graph.D) << "MB." << endl;
+    cout << "- PSI: " << size_in_bytes(compressed_graph.PSI) << "bytes, " << size_in_mega_bytes(compressed_graph.PSI) << "MB." << endl;
+    cout << "- sum: " << size_in_bytes(compressed_graph.D) + size_in_bytes(compressed_graph.PSI) << "bytes, "
+         << size_in_mega_bytes(compressed_graph.D) + size_in_mega_bytes(compressed_graph.PSI) << "MB." << endl;
+#endif
+    return 0;
+}
+
+int test_hypercsa_insert_edge()
+{
+    HyperGraph graph;
+    test_graph(graph);
+    CompressedHyperGraph compressed_graph = construct(graph);
+#ifdef VERBOSE_DEBUG
+    cout << "Data to review" << endl;
+    print_d(&compressed_graph);
+    print_psi(&compressed_graph);
+    check_and_print_sanity(compressed_graph);
+    print_psi_cycles(&compressed_graph);
+    cout << "Decompress" << endl;
+    print_edges(&compressed_graph);
+
+    cout << "Size of HyperCSA: " << endl;
+    cout << "- D  : " << size_in_bytes(compressed_graph.D) << "bytes, " << size_in_mega_bytes(compressed_graph.D) << "MB." << endl;
+    cout << "- PSI: " << size_in_bytes(compressed_graph.PSI) << "bytes, " << size_in_mega_bytes(compressed_graph.PSI) << "MB." << endl;
+    cout << "- sum: " << size_in_bytes(compressed_graph.D) + size_in_bytes(compressed_graph.PSI) << "bytes, "
+         << size_in_mega_bytes(compressed_graph.D) + size_in_mega_bytes(compressed_graph.PSI) << "MB." << endl;
+#endif
+
+    Edge e = {1, 3};
+    modify_insert_edge(compressed_graph, e);
+#ifdef VERBOSE_DEBUG
+    cout << "Data to review" << endl;
+    print_d(&compressed_graph);
+    print_psi(&compressed_graph);
+    check_and_print_sanity(compressed_graph);
     print_psi_cycles(&compressed_graph);
     cout << "Decompress" << endl;
     print_edges(&compressed_graph);
